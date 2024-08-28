@@ -234,11 +234,12 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
 
     const specifier = 'streamRawPredict';
 
-    const { responseHeaders, value: response } = await postJsonToApi({
+    const requestBody = {
       url: `${this.config.baseURL}${this.path}:${specifier}`,
       headers: combineHeaders(this.config.headers(), options.headers),
       body: {
         ...args,
+        stream: true,
       },
       failedResponseHandler: anthropicFailedResponseHandler,
       successfulResponseHandler: createEventSourceResponseHandler(
@@ -246,7 +247,11 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
       ),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch,
-    });
+    };
+
+    // console.log('requestBody:', requestBody);
+
+    const { responseHeaders, value: response } = await postJsonToApi(requestBody);
 
     const { messages: rawPrompt, ...rawSettings } = args;
 
@@ -272,25 +277,25 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
           LanguageModelV1StreamPart
         >({
           transform(chunk, controller) {
-            console.log('Received chunk:', JSON.stringify(chunk)); // Debug log
+            // console.log('Received chunk:', JSON.stringify(chunk)); // Debug log
 
             if (!chunk.success) {
-              console.error('Error in chunk:', chunk.error); // Debug log
+              // console.error('Error in chunk:', chunk.error); // Debug log
               controller.enqueue({ type: 'error', error: chunk.error });
               return;
             }
 
             const value = chunk.value;
-            console.log('Processing chunk of type:', value.type); // Debug log
+            // console.log('Processing chunk of type:', value.type); // Debug log
 
             switch (value.type) {
               case 'ping': {
-                console.log('Received ping'); // Debug log
+                // console.log('Received ping'); // Debug log
                 return; // ignored
               }
 
               case 'content_block_start': {
-                console.log('Content block start:', value.content_block); // Debug log
+                // console.log('Content block start:', value.content_block); // Debug log
                 const contentBlockType = value.content_block.type;
 
                 switch (contentBlockType) {
@@ -300,7 +305,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
                   }
 
                   case 'tool_use': {
-                    console.log('Tool use content block start:', value.content_block); // Debug log
+                    // console.log('Tool use content block start:', value.content_block); // Debug log
                     toolCallContentBlocks[value.index] = {
                       toolCallId: value.content_block.id,
                       toolName: value.content_block.name,
@@ -319,12 +324,12 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
               }
 
               case 'content_block_stop': {
-                console.log('Content block stop:', value); // Debug log
+                // console.log('Content block stop:', value); // Debug log
                 // when finishing a tool call block, send the full tool call:
                 if (toolCallContentBlocks[value.index] != null) {
                   const contentBlock = toolCallContentBlocks[value.index];
 
-                  console.log('Enqueueing tool call:', contentBlock); // Debug log
+                  // console.log('Enqueueing tool call:', contentBlock); // Debug log
                   controller.enqueue({
                     type: 'tool-call',
                     toolCallType: 'function',
@@ -340,11 +345,11 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
               }
 
               case 'content_block_delta': {
-                console.log('Content block delta:', value.delta); // Debug log
+                // console.log('Content block delta:', value.delta); // Debug log
                 const deltaType = value.delta.type;
                 switch (deltaType) {
                   case 'text_delta': {
-                    console.log('Enqueueing text delta:', value.delta.text); // Debug log
+                    // console.log('Enqueueing text delta:', value.delta.text); // Debug log
                     controller.enqueue({
                       type: 'text-delta',
                       textDelta: value.delta.text,
@@ -356,7 +361,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
                   case 'input_json_delta': {
                     const contentBlock = toolCallContentBlocks[value.index];
 
-                    console.log('Enqueueing tool call delta:', value.delta.partial_json); // Debug log
+                    // console.log('Enqueueing tool call delta:', value.delta.partial_json); // Debug log
                     controller.enqueue({
                       type: 'tool-call-delta',
                       toolCallType: 'function',
@@ -380,21 +385,21 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
               }
 
               case 'message_start': {
-                console.log('Message start:', value.message); // Debug log
+                // console.log('Message start:', value.message); // Debug log
                 usage.promptTokens = value.message.usage.input_tokens;
                 usage.completionTokens = value.message.usage.output_tokens;
                 return;
               }
 
               case 'message_delta': {
-                console.log('Message delta:', value); // Debug log
+                // console.log('Message delta:', value); // Debug log
                 usage.completionTokens = value.usage.output_tokens;
                 finishReason = mapAnthropicStopReason(value.delta.stop_reason);
                 return;
               }
 
               case 'message_stop': {
-                console.log('Message stop'); // Debug log
+                // console.log('Message stop'); // Debug log
                 controller.enqueue({ type: 'finish', finishReason, usage });
                 return;
               }
