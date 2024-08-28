@@ -157,4 +157,7 @@ export function createAnthropicVertex(
 /**
 Default Anthropic provider instance.
  */
-// export const anthropicVertex = createAnthropicVertex();
+export const anthropicVertex = (modelId: AnthropicMessagesModelId, settings?: AnthropicMessagesSettings) => {
+  const provider = createAnthropicVertex();
+  return provider(modelId, settings);
+};

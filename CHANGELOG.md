@@ -1,3 +1,6 @@
+v0.1.2:
+- fix default anthropicVertex export
+
 v0.1.1:
 - enable streaming
 
