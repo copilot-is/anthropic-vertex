@@ -272,27 +272,35 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
           LanguageModelV1StreamPart
         >({
           transform(chunk, controller) {
+            console.log('Received chunk:', JSON.stringify(chunk)); // Debug log
+
             if (!chunk.success) {
+              console.error('Error in chunk:', chunk.error); // Debug log
               controller.enqueue({ type: 'error', error: chunk.error });
               return;
             }
 
             const value = chunk.value;
+            console.log('Processing chunk of type:', value.type); // Debug log
 
             switch (value.type) {
               case 'ping': {
+                console.log('Received ping'); // Debug log
                 return; // ignored
               }
 
               case 'content_block_start': {
+                console.log('Content block start:', value.content_block); // Debug log
                 const contentBlockType = value.content_block.type;
 
                 switch (contentBlockType) {
                   case 'text': {
+                    console.log('Text content block start'); // Debug log
                     return; // ignored
                   }
 
                   case 'tool_use': {
+                    console.log('Tool use content block start:', value.content_block); // Debug log
                     toolCallContentBlocks[value.index] = {
                       toolCallId: value.content_block.id,
                       toolName: value.content_block.name,
@@ -311,10 +319,12 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
               }
 
               case 'content_block_stop': {
+                console.log('Content block stop:', value); // Debug log
                 // when finishing a tool call block, send the full tool call:
                 if (toolCallContentBlocks[value.index] != null) {
                   const contentBlock = toolCallContentBlocks[value.index];
 
+                  console.log('Enqueueing tool call:', contentBlock); // Debug log
                   controller.enqueue({
                     type: 'tool-call',
                     toolCallType: 'function',
@@ -330,9 +340,11 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
               }
 
               case 'content_block_delta': {
+                console.log('Content block delta:', value.delta); // Debug log
                 const deltaType = value.delta.type;
                 switch (deltaType) {
                   case 'text_delta': {
+                    console.log('Enqueueing text delta:', value.delta.text); // Debug log
                     controller.enqueue({
                       type: 'text-delta',
                       textDelta: value.delta.text,
@@ -344,6 +356,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
                   case 'input_json_delta': {
                     const contentBlock = toolCallContentBlocks[value.index];
 
+                    console.log('Enqueueing tool call delta:', value.delta.partial_json); // Debug log
                     controller.enqueue({
                       type: 'tool-call-delta',
                       toolCallType: 'function',
@@ -367,18 +380,21 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
               }
 
               case 'message_start': {
+                console.log('Message start:', value.message); // Debug log
                 usage.promptTokens = value.message.usage.input_tokens;
                 usage.completionTokens = value.message.usage.output_tokens;
                 return;
               }
 
               case 'message_delta': {
+                console.log('Message delta:', value); // Debug log
                 usage.completionTokens = value.usage.output_tokens;
                 finishReason = mapAnthropicStopReason(value.delta.stop_reason);
                 return;
               }
 
               case 'message_stop': {
+                console.log('Message stop'); // Debug log
                 controller.enqueue({ type: 'finish', finishReason, usage });
                 return;
               }
