@@ -1,6 +1,6 @@
 {
   "name": "anthropic-vertex-ai-provider",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "license": "Apache-2.0",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -47,7 +47,8 @@
     "node": ">=18"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "homepage": "https://sdk.vercel.ai/providers/community-providers",
   "repository": {
@@ -58,7 +59,10 @@
     "url": "https://github.com/fry69/anthropic-vertex-ai-provider/issues"
   },
   "keywords": [
-    "ai"
+    "ai",
+    "vertexai",
+    "anthropic",
+    "claude"
   ],
   "packageManager": "pnpm@8.6.9",
   "prettier": {
