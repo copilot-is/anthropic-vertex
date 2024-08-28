@@ -119,19 +119,6 @@ export function createAnthropicVertex(
   const auth =
     options.googleAuth ?? new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
 
-  // const token = await auth.getAccessToken()
-
-  const DEFAULT_VERSION = 'vertex-2023-10-16';
-
-  // const getHeaders = () => ({
-  //   'x-api-key': loadApiKey({
-  //     apiKey: options.apiKey,
-  //     environmentVariableName: 'ANTHROPIC_API_KEY',
-  //     description: 'Anthropic',
-  //   }),
-  //   ...options.headers,
-  // });
-
   const createChatModel = (
     modelId: AnthropicMessagesModelId,
     settings: AnthropicMessagesSettings = {},

@@ -53,7 +53,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
     this.modelId = modelId;
     this.settings = settings;
     this.config = config;
-    this.path = `projects/${config.projectId}/locations/${config.region}/publishers/anthropic/models/${modelId}`;
+    this.path = `/projects/${config.projectId}/locations/${config.region}/publishers/anthropic/models/${modelId}`;
   }
 
   get provider(): string {
@@ -171,7 +171,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
     const specifier = 'rawPredict';
 
     const { responseHeaders, value: response } = await postJsonToApi({
-      url: `${this.config.baseURL}/${this.path}:${specifier}`,
+      url: `${this.config.baseURL}${this.path}:${specifier}`,
       headers: combineHeaders(this.config.headers(), options.headers),
       body: args,
       failedResponseHandler: anthropicFailedResponseHandler,
@@ -235,7 +235,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
     const specifier = 'streamRawPredict';
 
     const { responseHeaders, value: response } = await postJsonToApi({
-      url: `${this.config.baseURL}/${this.path}:${specifier}`,
+      url: `${this.config.baseURL}${this.path}:${specifier}`,
       headers: combineHeaders(this.config.headers(), options.headers),
       body: {
         ...args,
