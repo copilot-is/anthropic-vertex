@@ -1,35 +1,40 @@
-import { loadApiKey, loadSetting, withoutTrailingSlash } from '@ai-sdk/provider-utils';
-import { GoogleAuth, GoogleAuthOptions } from 'google-auth-library';
+import {
+  LanguageModelV1,
+  NoSuchModelError,
+  ProviderV1,
+} from '@ai-sdk/provider';
+import { loadSetting, withoutTrailingSlash } from '@ai-sdk/provider-utils';
+import { GoogleAuth } from 'google-auth-library';
 import { AnthropicMessagesLanguageModel } from './anthropic-messages-language-model';
 import {
   AnthropicMessagesModelId,
   AnthropicMessagesSettings,
 } from './anthropic-messages-settings';
 
-export interface AnthropicVertexProvider {
+export interface AnthropicVertexProvider extends ProviderV1 {
   /**
-Creates a model for text generation.
-*/
+  * Creates a model for text generation.
+  */
   (
     modelId: AnthropicMessagesModelId,
     settings?: AnthropicMessagesSettings,
-  ): AnthropicMessagesLanguageModel;
+  ): LanguageModelV1;
 
   /**
-Creates a model for text generation.
-*/
-  languageModel(
+  * Creates a model for text generation.
+  */
+  languageModel: (
     modelId: AnthropicMessagesModelId,
     settings?: AnthropicMessagesSettings,
-  ): AnthropicMessagesLanguageModel;
+  ) => LanguageModelV1;
 
   /**
-Creates a model for text generation.
-*/
-  chat(
+  * Creates a model for text generation.
+  */
+  chat: (
     modelId: AnthropicMessagesModelId,
     settings?: AnthropicMessagesSettings,
-  ): AnthropicMessagesLanguageModel;
+  ) => LanguageModelV1;
 }
 
 export interface AnthropicVertexProviderSettings {
@@ -100,18 +105,6 @@ export function createAnthropicVertex(
     googleAuth: options.googleAuth,
   };
 
-  if (!config.region) {
-    throw new Error(
-      'No region was given. The client should be instantiated with the `region` option or the `GOOGLE_VERTEX_REGION` environment variable should be set.',
-    );
-  }
-
-  if(!config.projectId) {
-    throw new Error(
-      'No project was given. The client should be instantiated with the `projectID` option or the `GOOGLE_VERTEX_PROJECT_ID` environment variable should be set.',
-    );
-  }
-
   const baseURL =
     withoutTrailingSlash(options.baseURL) ??
     `https://${config.region}-aiplatform.googleapis.com/v1`;
@@ -149,6 +142,9 @@ export function createAnthropicVertex(
   };
 
   provider.languageModel = createChatModel;
+  provider.textEmbeddingModel = (modelId: string) => {
+    throw new NoSuchModelError({ modelId, modelType: 'textEmbeddingModel' });
+  };
   provider.chat = createChatModel;
 
   return provider as AnthropicVertexProvider;

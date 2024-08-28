@@ -1,3 +1,6 @@
+v0.1.3:
+- convert to LanguageModelV1 spec
+
 v0.1.2:
 - fix default anthropicVertex export
 
