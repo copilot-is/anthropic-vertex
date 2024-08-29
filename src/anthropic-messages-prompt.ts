@@ -7,9 +7,7 @@ export type AnthropicMessage = AnthropicUserMessage | AnthropicAssistantMessage;
 
 export interface AnthropicUserMessage {
   role: 'user';
-  content: Array<
-    AnthropicTextContent | AnthropicImageContent | AnthropicToolResultContent
-  >;
+  content: Array<AnthropicTextContent | AnthropicImageContent | AnthropicToolResultContent>;
 }
 
 export interface AnthropicAssistantMessage {

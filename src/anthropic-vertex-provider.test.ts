@@ -6,9 +6,9 @@ import { GoogleAuth } from 'google-auth-library';
 vi.mock('google-auth-library', () => ({
   GoogleAuth: vi.fn().mockImplementation(() => ({
     getClient: vi.fn().mockResolvedValue({
-      getRequestHeaders: vi.fn().mockResolvedValue({ 'Authorization': 'Bearer mock-token' })
-    })
-  }))
+      getRequestHeaders: vi.fn().mockResolvedValue({ Authorization: 'Bearer mock-token' }),
+    }),
+  })),
 }));
 
 vi.mock('./anthropic-messages-language-model', () => ({
@@ -16,7 +16,7 @@ vi.mock('./anthropic-messages-language-model', () => ({
     modelId,
     settings,
     config,
-  }))
+  })),
 }));
 
 describe('AnthropicVertex Provider', () => {
@@ -47,7 +47,7 @@ describe('AnthropicVertex Provider', () => {
         provider: 'anthropic.messages',
         projectId: 'test-project',
         region: 'us-central1',
-      })
+      }),
     );
     expect(model).toBeDefined();
   });
@@ -74,7 +74,7 @@ describe('AnthropicVertex Provider', () => {
       {},
       expect.objectContaining({
         googleAuth: mockGoogleAuth,
-      })
+      }),
     );
   });
 
@@ -88,7 +88,7 @@ describe('AnthropicVertex Provider', () => {
         provider: 'anthropic.messages',
         projectId: 'test-project',
         region: 'us-central1',
-      })
+      }),
     );
     expect(chatModel).toBeDefined();
   });
@@ -100,7 +100,9 @@ describe('AnthropicVertex Provider', () => {
 
     expect(() => {
       createAnthropicVertex();
-    }).toThrow('Google Vertex project id setting is missing. Pass it using the \'projectId\' parameter or the GOOGLE_VERTEX_PROJECT_ID environment variable.');
+    }).toThrow(
+      "Google Vertex project id setting is missing. Pass it using the 'projectId' parameter or the GOOGLE_VERTEX_PROJECT_ID environment variable.",
+    );
 
     // Restore the original environment
     process.env = originalEnv;

@@ -7,9 +7,9 @@ import { AnthropicMessagesLanguageModel } from './anthropic-messages-language-mo
 vi.mock('google-auth-library', () => ({
   GoogleAuth: vi.fn().mockImplementation(() => ({
     getClient: vi.fn().mockResolvedValue({
-      getRequestHeaders: vi.fn().mockResolvedValue({ 'Authorization': 'Bearer mock-token' })
-    })
-  }))
+      getRequestHeaders: vi.fn().mockResolvedValue({ Authorization: 'Bearer mock-token' }),
+    }),
+  })),
 }));
 
 describe('AnthropicVertex Provider Integration', () => {
@@ -51,20 +51,22 @@ describe('AnthropicVertex Provider Integration', () => {
       usage: { promptTokens: 10, completionTokens: 5 },
       rawCall: {
         rawPrompt: undefined,
-        rawSettings: undefined as any
-      }
+        rawSettings: undefined as any,
+      },
     });
 
     const result = await model.doGenerate({
       prompt: [{ role: 'user', content: [{ type: 'text', text: 'What is 6x12?' }] }],
       mode: { type: 'regular' },
-      inputFormat: 'prompt'
+      inputFormat: 'prompt',
     });
 
     expect(result.text).toBe('6x12 is 72.');
-    expect(model.doGenerate).toHaveBeenCalledWith(expect.objectContaining({
-      prompt: [{ role: 'user', content: [{ type: 'text', text: 'What is 6x12?' }] }],
-    }));
+    expect(model.doGenerate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prompt: [{ role: 'user', content: [{ type: 'text', text: 'What is 6x12?' }] }],
+      }),
+    );
   });
 
   it('supports streaming text generation', async () => {
@@ -74,9 +76,13 @@ describe('AnthropicVertex Provider Integration', () => {
         controller.enqueue({ type: 'text-delta', textDelta: 'Embedding' });
         controller.enqueue({ type: 'text-delta', textDelta: ' models' });
         controller.enqueue({ type: 'text-delta', textDelta: ' are' });
-        controller.enqueue({ type: 'finish', finishReason: 'stop', usage: { promptTokens: 15, completionTokens: 10 } });
+        controller.enqueue({
+          type: 'finish',
+          finishReason: 'stop',
+          usage: { promptTokens: 15, completionTokens: 10 },
+        });
         controller.close();
-      }
+      },
     });
 
     vi.spyOn(model, 'doStream').mockResolvedValue({
@@ -93,17 +99,17 @@ describe('AnthropicVertex Provider Integration', () => {
           content: [
             {
               type: 'text',
-              text: 'Write a long poem about embedding models.'
-            }
-          ]
-        }
+              text: 'Write a long poem about embedding models.',
+            },
+          ],
+        },
       ],
       inputFormat: 'prompt',
       mode: {
         type: 'regular',
         tools: undefined,
-        toolChoice: undefined
-      }
+        toolChoice: undefined,
+      },
     });
 
     const reader = result.stream.getReader();
@@ -119,10 +125,21 @@ describe('AnthropicVertex Provider Integration', () => {
     expect(chunks[0]).toEqual({ type: 'text-delta', textDelta: 'Embedding' });
     expect(chunks[1]).toEqual({ type: 'text-delta', textDelta: ' models' });
     expect(chunks[2]).toEqual({ type: 'text-delta', textDelta: ' are' });
-    expect(chunks[3]).toEqual({ type: 'finish', finishReason: 'stop', usage: { promptTokens: 15, completionTokens: 10 } });
+    expect(chunks[3]).toEqual({
+      type: 'finish',
+      finishReason: 'stop',
+      usage: { promptTokens: 15, completionTokens: 10 },
+    });
 
-    expect(model.doStream).toHaveBeenCalledWith(expect.objectContaining({
-      prompt: [{ role: 'user', content: [{ type: 'text', text: 'Write a long poem about embedding models.' }] }],
-    }));
+    expect(model.doStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prompt: [
+          {
+            role: 'user',
+            content: [{ type: 'text', text: 'Write a long poem about embedding models.' }],
+          },
+        ],
+      }),
+    );
   });
 });

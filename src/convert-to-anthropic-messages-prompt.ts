@@ -26,8 +26,7 @@ export function convertToAnthropicMessagesPrompt(
       case 'system': {
         if (system != null) {
           throw new UnsupportedFunctionalityError({
-            functionality:
-              'Multiple system messages that are separated by user/assistant messages',
+            functionality: 'Multiple system messages that are separated by user/assistant messages',
           });
         }
 
@@ -113,10 +112,7 @@ export function convertToAnthropicMessagesPrompt(
                 // trim the last text part if it's the last message in the block
                 // because Anthropic does not allow trailing whitespace
                 // in pre-filled assistant responses
-                if (
-                  i === blocks.length - 1 &&
-                  j === block.messages.length - 1
-                ) {
+                if (i === blocks.length - 1 && j === block.messages.length - 1) {
                   return { type: 'text', text: part.text.trim() };
                 }
 
@@ -167,8 +163,7 @@ function groupIntoBlocks(
   prompt: LanguageModelV1Prompt,
 ): Array<SystemBlock | AssistantBlock | UserBlock> {
   const blocks: Array<SystemBlock | AssistantBlock | UserBlock> = [];
-  let currentBlock: SystemBlock | AssistantBlock | UserBlock | undefined =
-    undefined;
+  let currentBlock: SystemBlock | AssistantBlock | UserBlock | undefined = undefined;
 
   for (const { role, content } of prompt) {
     switch (role) {

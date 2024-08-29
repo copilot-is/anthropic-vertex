@@ -1,36 +1,26 @@
-import {
-  LanguageModelV1,
-  NoSuchModelError,
-  ProviderV1,
-} from '@ai-sdk/provider';
+import { LanguageModelV1, NoSuchModelError, ProviderV1 } from '@ai-sdk/provider';
 import { loadSetting, withoutTrailingSlash } from '@ai-sdk/provider-utils';
 import { GoogleAuth } from 'google-auth-library';
 import { AnthropicMessagesLanguageModel } from './anthropic-messages-language-model';
-import {
-  AnthropicMessagesModelId,
-  AnthropicMessagesSettings,
-} from './anthropic-messages-settings';
+import { AnthropicMessagesModelId, AnthropicMessagesSettings } from './anthropic-messages-settings';
 
 export interface AnthropicVertexProvider extends ProviderV1 {
   /**
-  * Creates a model for text generation.
-  */
-  (
-    modelId: AnthropicMessagesModelId,
-    settings?: AnthropicMessagesSettings,
-  ): LanguageModelV1;
+   * Creates a model for text generation.
+   */
+  (modelId: AnthropicMessagesModelId, settings?: AnthropicMessagesSettings): LanguageModelV1;
 
   /**
-  * Creates a model for text generation.
-  */
+   * Creates a model for text generation.
+   */
   languageModel: (
     modelId: AnthropicMessagesModelId,
     settings?: AnthropicMessagesSettings,
   ) => LanguageModelV1;
 
   /**
-  * Creates a model for text generation.
-  */
+   * Creates a model for text generation.
+   */
   chat: (
     modelId: AnthropicMessagesModelId,
     settings?: AnthropicMessagesSettings,
@@ -88,7 +78,6 @@ Create an Anthropic provider instance.
 export function createAnthropicVertex(
   options: AnthropicVertexProviderSettings = {},
 ): AnthropicVertexProvider {
-
   const config = {
     projectId: loadSetting({
       settingValue: options.projectId,
@@ -110,7 +99,8 @@ export function createAnthropicVertex(
     `https://${config.region}-aiplatform.googleapis.com/v1`;
 
   const auth =
-    options.googleAuth ?? new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
+    options.googleAuth ??
+    new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
 
   const createChatModel = (
     modelId: AnthropicMessagesModelId,
@@ -120,12 +110,12 @@ export function createAnthropicVertex(
       provider: 'anthropic.messages',
       baseURL,
       headers: () => ({
-        ...options.headers
+        ...options.headers,
       }),
       fetch: options.fetch,
       projectId: config.projectId,
       region: config.region,
-      googleAuth: auth
+      googleAuth: auth,
     });
 
   const provider = function (
@@ -133,9 +123,7 @@ export function createAnthropicVertex(
     settings?: AnthropicMessagesSettings,
   ) {
     if (new.target) {
-      throw new Error(
-        'The Anthropic model function cannot be called with the new keyword.',
-      );
+      throw new Error('The Anthropic model function cannot be called with the new keyword.');
     }
 
     return createChatModel(modelId, settings);
@@ -153,7 +141,10 @@ export function createAnthropicVertex(
 /**
 Default Anthropic provider instance.
  */
-export const anthropicVertex = (modelId: AnthropicMessagesModelId, settings?: AnthropicMessagesSettings) => {
+export const anthropicVertex = (
+  modelId: AnthropicMessagesModelId,
+  settings?: AnthropicMessagesSettings,
+) => {
   const provider = createAnthropicVertex();
   return provider(modelId, settings);
 };

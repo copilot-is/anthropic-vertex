@@ -15,10 +15,7 @@ import {
 } from '@ai-sdk/provider-utils';
 import { z } from 'zod';
 import { anthropicFailedResponseHandler } from './anthropic-error';
-import {
-  AnthropicMessagesModelId,
-  AnthropicMessagesSettings,
-} from './anthropic-messages-settings';
+import { AnthropicMessagesModelId, AnthropicMessagesSettings } from './anthropic-messages-settings';
 import { convertToAnthropicMessagesPrompt } from './convert-to-anthropic-messages-prompt';
 import { mapAnthropicStopReason } from './map-anthropic-stop-reason';
 import { GoogleAuth } from 'google-auth-library';
@@ -175,9 +172,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
       headers: combineHeaders(this.config.headers(), options.headers),
       body: args,
       failedResponseHandler: anthropicFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(
-        anthropicMessagesResponseSchema,
-      ),
+      successfulResponseHandler: createJsonResponseHandler(anthropicMessagesResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch,
     });
@@ -242,9 +237,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
         stream: true,
       },
       failedResponseHandler: anthropicFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(
-        anthropicMessagesChunkSchema,
-      ),
+      successfulResponseHandler: createEventSourceResponseHandler(anthropicMessagesChunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch,
     };
@@ -316,9 +309,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
 
                   default: {
                     const _exhaustiveCheck: never = contentBlockType;
-                    throw new Error(
-                      `Unsupported content block type: ${_exhaustiveCheck}`,
-                    );
+                    throw new Error(`Unsupported content block type: ${_exhaustiveCheck}`);
                   }
                 }
               }
@@ -377,9 +368,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
 
                   default: {
                     const _exhaustiveCheck: never = deltaType;
-                    throw new Error(
-                      `Unsupported delta type: ${_exhaustiveCheck}`,
-                    );
+                    throw new Error(`Unsupported delta type: ${_exhaustiveCheck}`);
                   }
                 }
               }
