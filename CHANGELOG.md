@@ -1,3 +1,6 @@
+v0.1.4:
+- update dependencies
+
 v0.1.3:
 - convert to LanguageModelV1 spec
 - add tests
