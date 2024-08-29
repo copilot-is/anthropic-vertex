@@ -13,3 +13,4 @@ public/dist
 .turbo
 test-results
 .aider*
+.attic
