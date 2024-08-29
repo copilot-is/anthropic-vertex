@@ -5,6 +5,6 @@ export default defineConfig({
   test: {
     environment: 'edge-runtime',
     globals: true,
-    include: ['**/*.test.ts', '**/*.test.tsx'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   },
 });
