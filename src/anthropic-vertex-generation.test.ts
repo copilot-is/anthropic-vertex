@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAnthropicVertex, AnthropicVertexProvider } from './anthropic-vertex-provider';
 import { AnthropicMessagesLanguageModel } from './anthropic-messages-language-model';

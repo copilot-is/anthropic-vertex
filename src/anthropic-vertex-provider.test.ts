@@ -54,7 +54,7 @@ describe('AnthropicVertex Provider', () => {
 
   it('throws an error when called with new keyword', () => {
     expect(() => {
-      // @ts-ignore - Intentionally calling with new for testing
+      // @ts-expect-error - Intentionally calling with new for testing
       new provider('claude-3-opus@20240229');
     }).toThrow('The Anthropic model function cannot be called with the new keyword.');
   });
