@@ -1,5 +1,6 @@
 v0.1.4:
 - update dependencies
+- run tests on push
 
 v0.1.3:
 - convert to LanguageModelV1 spec

@@ -1,13 +1,11 @@
-name: Publish Package to npmjs
+name: Run tests on push
 on:
-  release:
-    types: [created]
+  push:
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,8 +27,6 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Publish to npm registry
-        run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+      - name: Run tests
+        run: pnpm run test:ci
+
