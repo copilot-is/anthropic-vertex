@@ -1,6 +1,7 @@
 v0.1.4:
 - update dependencies
 - run tests on push
+- minor cleanup
 
 v0.1.3:
 - convert to LanguageModelV1 spec
