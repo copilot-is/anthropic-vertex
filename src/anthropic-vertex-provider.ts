@@ -17,14 +17,6 @@ export interface AnthropicVertexProvider extends ProviderV1 {
     modelId: AnthropicMessagesModelId,
     settings?: AnthropicMessagesSettings,
   ) => LanguageModelV1;
-
-  /**
-   * Creates a model for text generation.
-   */
-  chat: (
-    modelId: AnthropicMessagesModelId,
-    settings?: AnthropicMessagesSettings,
-  ) => LanguageModelV1;
 }
 
 export interface AnthropicVertexProviderSettings {
@@ -102,7 +94,7 @@ export function createAnthropicVertex(
     options.googleAuth ??
     new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
 
-  const createChatModel = (
+  const createLanguageModel = (
     modelId: AnthropicMessagesModelId,
     settings: AnthropicMessagesSettings = {},
   ) =>
@@ -126,14 +118,14 @@ export function createAnthropicVertex(
       throw new Error('The Anthropic model function cannot be called with the new keyword.');
     }
 
-    return createChatModel(modelId, settings);
+    return createLanguageModel(modelId, settings);
   };
 
-  provider.languageModel = createChatModel;
+  provider.languageModel = createLanguageModel;
   provider.textEmbeddingModel = (modelId: string) => {
     throw new NoSuchModelError({ modelId, modelType: 'textEmbeddingModel' });
   };
-  provider.chat = createChatModel;
+
 
   return provider as AnthropicVertexProvider;
 }

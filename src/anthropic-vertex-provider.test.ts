@@ -34,7 +34,6 @@ describe('AnthropicVertex Provider', () => {
     expect(provider).toBeDefined();
     expect(typeof provider).toBe('function');
     expect(provider.languageModel).toBeDefined();
-    expect(provider.chat).toBeDefined();
   });
 
   it('creates a language model with specified model ID', () => {
@@ -79,7 +78,7 @@ describe('AnthropicVertex Provider', () => {
   });
 
   it('creates a chat model', () => {
-    const chatModel = provider.chat('claude-3-opus@20240229');
+    const languageModel = provider.languageModel('claude-3-opus@20240229');
 
     expect(AnthropicMessagesLanguageModel).toHaveBeenCalledWith(
       'claude-3-opus@20240229',
@@ -90,7 +89,7 @@ describe('AnthropicVertex Provider', () => {
         region: 'us-central1',
       }),
     );
-    expect(chatModel).toBeDefined();
+    expect(languageModel).toBeDefined();
   });
 
   it('throws an error when no region/project credentials are set', () => {
