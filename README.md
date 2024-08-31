@@ -1,12 +1,16 @@
 # Vercel AI SDK - Anthropic Vertex Provider
 
-[fry69/anthropic-vertex-ai-provider](https://github.com/nalaso/anthropic-vertex-ai) is a community provider that uses Anthropic models through Vertex AI to provide language model support for the Vercel AI SDK.
+[fry69/anthropic-vertex-ai-provider](https://github.com/fry69/anthropic-vertex-ai-provider) is a community provider that uses Anthropic models through Vertex AI to provide language model support for the Vercel AI SDK.
 
 This provider is a community-maintained module and is not officially supported by Vercel. It was forked from the [Anthropic Vertex Provider](https://github.com/vercel/ai/pull/2482) pull request and updated.
 
 ## Compatibility
 
 The AnthropicVertex provider was tested with Vercel AI SDK version `3.1.0`. To avoid TypeScript errors it is recommended to use version `3.3.0` or higher.
+
+## Example scripts
+
+Example scripts how to use this provider can be found in the [examples](./examples) folder.
 
 ## Setup
 
