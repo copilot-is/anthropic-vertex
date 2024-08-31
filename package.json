@@ -1,6 +1,6 @@
 {
   "name": "anthropic-vertex-ai-provider",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "Apache-2.0",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -59,7 +59,7 @@
     "access": "public",
     "provenance": true
   },
-  "homepage": "https://sdk.vercel.ai/providers/community-providers",
+  "homepage": "https://github.com/fry69/anthropic-vertex-ai-provider#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fry69/anthropic-vertex-ai-provider.git"

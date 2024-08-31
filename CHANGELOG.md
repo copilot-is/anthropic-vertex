@@ -1,3 +1,7 @@
+v1.0.2:
+
+- example scripts
+
 v1.0.1:
 
 - include changelog in distrbution
