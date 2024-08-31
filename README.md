@@ -4,6 +4,10 @@
 
 This provider is a community-maintained module and is not officially supported by Vercel. It was forked from the [Anthropic Vertex Provider](https://github.com/vercel/ai/pull/2482) pull request and updated.
 
+## Compatibility
+
+The AnthropicVertex provider was tested with Vercel AI SDK version `3.1.0`. To avoid TypeScript errors it is recommended to use version `3.3.0` or higher.
+
 ## Setup
 
 The AnthropicVertex provider is available in the `anthropic-vertex-ai-provider` module. You can install it with:
@@ -94,12 +98,12 @@ AnthropicVertex language models can also be used in the `streamText`, `generateO
 
 ### Model Capabilities
 
-| Model                        | Image Input         | Object Generation   | Tool Usage          | Tool Streaming      |
-| ---------------------------- | ------------------- | ------------------- | ------------------- | ------------------- |
-| `claude-3-5-sonnet@20240620` | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
-| `claude-3-opus@20240229`     | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
-| `claude-3-sonnet@20240229`   | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
-| `claude-3-haiku@20240307`    | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
+| Model                        | Image Input        | Object Generation  | Tool Usage         | Tool Streaming     |
+| ---------------------------- | ------------------ | ------------------ | ------------------ | ------------------ |
+| `claude-3-5-sonnet@20240620` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| `claude-3-opus@20240229`     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| `claude-3-sonnet@20240229`   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| `claude-3-haiku@20240307`    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 ## Environment Variables
 
@@ -119,11 +123,13 @@ For more information on setting up authentication, refer to the [Google Cloud Au
 ## Tests
 
 To run the tests, make sure you have installed the dependencies with:
+
 ```shell
 pnpm install
 ```
 
 Then, run the tests with:
+
 ```shell
 pnpm test
 ```
