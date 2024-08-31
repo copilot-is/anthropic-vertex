@@ -3,7 +3,7 @@ import { streamText } from 'ai';
 
 const vertexProvider = createAnthropicVertex({
   region: 'europe-west1',
-  projectId: 'second-try-432401',
+  projectId: 'my-proj-1234',
 });
 
 const vertexSonnet = vertexProvider('claude-3-5-sonnet@20240620');
