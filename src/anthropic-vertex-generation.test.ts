@@ -142,4 +142,90 @@ describe('AnthropicVertex Provider Integration', () => {
       }),
     );
   });
+
+  it('supports tool calls', async () => {
+    const model = provider('claude-3-haiku@20240307');
+    vi.spyOn(model, 'doGenerate').mockResolvedValue({
+      text: '',
+      toolCalls: [
+        {
+          toolCallType: 'function',
+          toolCallId: 'toolu_vrtx_01Gg47Tt2uYNMop8F2igxdHh',
+          toolName: 'celsiusToFahrenheit',
+          args: JSON.stringify({ value: '30' }),
+        },
+      ],
+      finishReason: 'tool-calls',
+      usage: { promptTokens: 20, completionTokens: 15 },
+      rawCall: {
+        rawPrompt: undefined,
+        rawSettings: undefined as any,
+      },
+    });
+
+    const result = await model.doGenerate({
+      prompt: [
+        { role: 'system', content: [{ type: 'text', text: 'You are a friendly assistant!' }] },
+        {
+          role: 'user',
+          content: [{ type: 'text', text: 'What is 30 degrees Celsius in Fahrenheit?' }],
+        },
+      ],
+      mode: {
+        type: 'regular',
+        tools: [
+          {
+            name: 'celsiusToFahrenheit',
+            description: 'Converts celsius to fahrenheit',
+            parameters: {
+              type: 'object',
+              properties: {
+                value: { type: 'string', description: 'The value in celsius' },
+              },
+              required: ['value'],
+            },
+          },
+        ],
+      },
+      inputFormat: 'prompt',
+    });
+
+    expect(result.text).toBe('');
+    expect(result.toolCalls).toEqual([
+      {
+        toolCallType: 'function',
+        toolCallId: 'toolu_vrtx_01Gg47Tt2uYNMop8F2igxdHh',
+        toolName: 'celsiusToFahrenheit',
+        args: JSON.stringify({ value: '30' }),
+      },
+    ]);
+    expect(result.finishReason).toBe('tool-calls');
+    expect(model.doGenerate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prompt: [
+          { role: 'system', content: [{ type: 'text', text: 'You are a friendly assistant!' }] },
+          {
+            role: 'user',
+            content: [{ type: 'text', text: 'What is 30 degrees Celsius in Fahrenheit?' }],
+          },
+        ],
+        mode: {
+          type: 'regular',
+          tools: [
+            {
+              name: 'celsiusToFahrenheit',
+              description: 'Converts celsius to fahrenheit',
+              parameters: {
+                type: 'object',
+                properties: {
+                  value: { type: 'string', description: 'The value in celsius' },
+                },
+                required: ['value'],
+              },
+            },
+          ],
+        },
+      }),
+    );
+  });
 });
