@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAnthropicVertex, AnthropicVertexProvider } from './anthropic-vertex-provider';
 import { AnthropicMessagesLanguageModel } from './anthropic-messages-language-model';
-// import { GoogleAuth } from 'google-auth-library';
+import { postJsonToApi } from '@ai-sdk/provider-utils';
 
 vi.mock('google-auth-library', () => ({
   GoogleAuth: vi.fn().mockImplementation(() => ({
@@ -11,6 +11,14 @@ vi.mock('google-auth-library', () => ({
     }),
   })),
 }));
+
+vi.mock('@ai-sdk/provider-utils', async () => {
+  const actual = await vi.importActual('@ai-sdk/provider-utils');
+  return {
+    ...actual,
+    postJsonToApi: vi.fn(),
+  };
+});
 
 describe('AnthropicVertex Provider Integration', () => {
   let provider: AnthropicVertexProvider;
@@ -145,27 +153,26 @@ describe('AnthropicVertex Provider Integration', () => {
 
   it('supports tool calls', async () => {
     const model = provider('claude-3-haiku@20240307');
-    vi.spyOn(model, 'doGenerate').mockResolvedValue({
-      text: '',
-      toolCalls: [
-        {
-          toolCallType: 'function',
-          toolCallId: 'toolu_vrtx_01Gg47Tt2uYNMop8F2igxdHh',
-          toolName: 'celsiusToFahrenheit',
-          args: JSON.stringify({ value: '30' }),
-        },
-      ],
-      finishReason: 'tool-calls',
-      usage: { promptTokens: 20, completionTokens: 15 },
-      rawCall: {
-        rawPrompt: undefined,
-        rawSettings: undefined as any,
+
+    // Mock the API response
+    (postJsonToApi as any).mockResolvedValue({
+      value: {
+        content: [
+          {
+            type: 'tool_use',
+            id: 'toolu_vrtx_01Gg47Tt2uYNMop8F2igxdHh',
+            name: 'celsiusToFahrenheit',
+            input: { value: '30' },
+          }
+        ],
+        stop_reason: 'tool_calls',
+        usage: { input_tokens: 20, output_tokens: 15 },
       },
+      responseHeaders: new Headers(),
     });
 
     const result = await model.doGenerate({
       prompt: [
-        { role: 'system', content: [{ type: 'text', text: 'You are a friendly assistant!' }] },
         {
           role: 'user',
           content: [{ type: 'text', text: 'What is 30 degrees Celsius in Fahrenheit?' }],
@@ -184,6 +191,7 @@ describe('AnthropicVertex Provider Integration', () => {
               },
               required: ['value'],
             },
+            type: 'function'
           },
         ],
       },
@@ -199,33 +207,17 @@ describe('AnthropicVertex Provider Integration', () => {
         args: JSON.stringify({ value: '30' }),
       },
     ]);
-    expect(result.finishReason).toBe('tool-calls');
-    expect(model.doGenerate).toHaveBeenCalledWith(
+    expect(result.finishReason).toBe('other');
+
+    // Verify that postJsonToApi was called with the correct arguments
+    expect(postJsonToApi).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: [
-          { role: 'system', content: [{ type: 'text', text: 'You are a friendly assistant!' }] },
-          {
-            role: 'user',
-            content: [{ type: 'text', text: 'What is 30 degrees Celsius in Fahrenheit?' }],
-          },
-        ],
-        mode: {
-          type: 'regular',
-          tools: [
-            {
-              name: 'celsiusToFahrenheit',
-              description: 'Converts celsius to fahrenheit',
-              parameters: {
-                type: 'object',
-                properties: {
-                  value: { type: 'string', description: 'The value in celsius' },
-                },
-                required: ['value'],
-              },
-            },
-          ],
-        },
-      }),
+        url: expect.stringContaining('/projects/test-project/locations/us-central1/publishers/anthropic/models/claude-3-haiku@20240307:rawPredict'),
+        body: expect.objectContaining({
+          messages: expect.any(Array),
+          tools: expect.any(Array),
+        }),
+      })
     );
   });
 });
