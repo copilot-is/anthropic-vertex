@@ -5,6 +5,7 @@ v1.0.0:
 - finish conversion to ProviderV1 spec
 - minor cleanup
 - reformat code
+- fix tests to actually test internal logic
 
 v0.1.3:
 

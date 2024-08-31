@@ -53,14 +53,15 @@ describe('AnthropicVertex Provider Integration', () => {
 
   it('supports text generation', async () => {
     const model = provider('claude-3-haiku@20240307');
-    vi.spyOn(model, 'doGenerate').mockResolvedValue({
-      text: '6x12 is 72.',
-      finishReason: 'stop',
-      usage: { promptTokens: 10, completionTokens: 5 },
-      rawCall: {
-        rawPrompt: undefined,
-        rawSettings: undefined as any,
+
+    // Mock the postJsonToApi function to return a predefined response
+    (postJsonToApi as any).mockResolvedValue({
+      value: {
+        content: [{ type: 'text', text: '6x12 is 72.' }],
+        stop_reason: 'stop',
+        usage: { input_tokens: 10, output_tokens: 5 },
       },
+      responseHeaders: new Headers(),
     });
 
     const result = await model.doGenerate({
@@ -70,34 +71,49 @@ describe('AnthropicVertex Provider Integration', () => {
     });
 
     expect(result.text).toBe('6x12 is 72.');
-    expect(model.doGenerate).toHaveBeenCalledWith(
+    expect(result.finishReason).toBe('other');
+    expect(result.usage).toEqual({ promptTokens: 10, completionTokens: 5 });
+
+    // Verify that postJsonToApi was called with the correct arguments
+    expect(postJsonToApi).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: [{ role: 'user', content: [{ type: 'text', text: 'What is 6x12?' }] }],
-      }),
+        url: expect.stringContaining('/projects/test-project/locations/us-central1/publishers/anthropic/models/claude-3-haiku@20240307:rawPredict'),
+        body: expect.objectContaining({
+          messages: expect.arrayContaining([
+            expect.objectContaining({
+              role: 'user',
+              content: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'text',
+                  text: 'What is 6x12?'
+                })
+              ])
+            })
+          ]),
+        }),
+      })
     );
   });
 
   it('supports streaming text generation', async () => {
     const model = provider('claude-3-5-sonnet@20240620');
-    const mockStream = new ReadableStream({
-      start(controller) {
-        controller.enqueue({ type: 'text-delta', textDelta: 'Embedding' });
-        controller.enqueue({ type: 'text-delta', textDelta: ' models' });
-        controller.enqueue({ type: 'text-delta', textDelta: ' are' });
-        controller.enqueue({
-          type: 'finish',
-          finishReason: 'stop',
-          usage: { promptTokens: 15, completionTokens: 10 },
-        });
-        controller.close();
-      },
-    });
 
-    vi.spyOn(model, 'doStream').mockResolvedValue({
-      stream: mockStream,
-      rawCall: { rawPrompt: [], rawSettings: {} },
-      rawResponse: { headers: new Headers() as any },
-      warnings: [],
+    // Mock the postJsonToApi function to return a stream of events
+    (postJsonToApi as any).mockResolvedValue({
+      value: new ReadableStream({
+        start(controller) {
+          controller.enqueue({ success: true, value: { type: 'message_start', message: { usage: { input_tokens: 15, output_tokens: 0 } } } });
+          controller.enqueue({ success: true, value: { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } } });
+          controller.enqueue({ success: true, value: { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Embedding' } } });
+          controller.enqueue({ success: true, value: { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: ' models' } } });
+          controller.enqueue({ success: true, value: { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: ' are' } } });
+          controller.enqueue({ success: true, value: { type: 'content_block_stop', index: 0 } });
+          controller.enqueue({ success: true, value: { type: 'message_delta', delta: { stop_reason: 'stop' }, usage: { output_tokens: 10 } } });
+          controller.enqueue({ success: true, value: { type: 'message_stop' } });
+          controller.close();
+        },
+      }),
+      responseHeaders: new Headers(),
     });
 
     const result = await model.doStream({
@@ -135,19 +151,29 @@ describe('AnthropicVertex Provider Integration', () => {
     expect(chunks[2]).toEqual({ type: 'text-delta', textDelta: ' are' });
     expect(chunks[3]).toEqual({
       type: 'finish',
-      finishReason: 'stop',
+      finishReason: 'other',
       usage: { promptTokens: 15, completionTokens: 10 },
     });
 
-    expect(model.doStream).toHaveBeenCalledWith(
+    // Verify that postJsonToApi was called with the correct arguments
+    expect(postJsonToApi).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: [
-          {
-            role: 'user',
-            content: [{ type: 'text', text: 'Write a long poem about embedding models.' }],
-          },
-        ],
-      }),
+        url: expect.stringContaining('/projects/test-project/locations/us-central1/publishers/anthropic/models/claude-3-5-sonnet@20240620:streamRawPredict'),
+        body: expect.objectContaining({
+          messages: expect.arrayContaining([
+            expect.objectContaining({
+              role: 'user',
+              content: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'text',
+                  text: 'Write a long poem about embedding models.'
+                })
+              ])
+            })
+          ]),
+          stream: true,
+        }),
+      })
     );
   });
 
