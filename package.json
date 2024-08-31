@@ -1,13 +1,14 @@
 {
   "name": "anthropic-vertex-ai-provider",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache-2.0",
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsup",

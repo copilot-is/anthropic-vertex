@@ -1,3 +1,7 @@
+v1.0.1:
+
+- include changelog in distrbution
+
 v1.0.0:
 
 - update dependencies
