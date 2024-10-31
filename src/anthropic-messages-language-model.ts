@@ -7,6 +7,7 @@ import {
   UnsupportedFunctionalityError,
 } from '@ai-sdk/provider';
 import {
+  FetchFunction,
   ParseResult,
   combineHeaders,
   createEventSourceResponseHandler,
@@ -24,9 +25,9 @@ type AnthropicMessagesConfig = {
   provider: string;
   baseURL: string;
   headers: () => Record<string, string | undefined>;
-  fetch?: typeof fetch;
-  projectId?: string;
-  region?: string;
+  fetch?: FetchFunction;
+  project?: string;
+  location?: string;
   googleAuth?: GoogleAuth;
 };
 
@@ -50,7 +51,7 @@ export class AnthropicMessagesLanguageModel implements LanguageModelV1 {
     this.modelId = modelId;
     this.settings = settings;
     this.config = config;
-    this.path = `/projects/${config.projectId}/locations/${config.region}/publishers/anthropic/models/${modelId}`;
+    this.path = `/projects/${config.project}/locations/${config.location}/publishers/anthropic/models/${modelId}`;
   }
 
   get provider(): string {

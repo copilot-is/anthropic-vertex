@@ -1,15 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAnthropicVertex, AnthropicVertexProvider } from './anthropic-vertex-provider';
 import { AnthropicMessagesLanguageModel } from './anthropic-messages-language-model';
-import { GoogleAuth } from 'google-auth-library';
-
-vi.mock('google-auth-library', () => ({
-  GoogleAuth: vi.fn().mockImplementation(() => ({
-    getClient: vi.fn().mockResolvedValue({
-      getRequestHeaders: vi.fn().mockResolvedValue({ Authorization: 'Bearer mock-token' }),
-    }),
-  })),
-}));
 
 vi.mock('./anthropic-messages-language-model', () => ({
   AnthropicMessagesLanguageModel: vi.fn().mockImplementation((modelId, settings, config) => ({
@@ -25,8 +16,8 @@ describe('AnthropicVertex Provider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     provider = createAnthropicVertex({
-      projectId: 'test-project',
-      region: 'us-central1',
+      project: 'test-project',
+      location: 'us-central1',
     });
   });
 
@@ -43,9 +34,9 @@ describe('AnthropicVertex Provider', () => {
       'claude-3-opus@20240229',
       {},
       expect.objectContaining({
-        provider: 'anthropic.messages',
-        projectId: 'test-project',
-        region: 'us-central1',
+        provider: 'anthropic.vertex',
+        project: 'test-project',
+        location: 'us-central1',
       }),
     );
     expect(model).toBeDefined();
@@ -58,21 +49,37 @@ describe('AnthropicVertex Provider', () => {
     }).toThrow('The Anthropic model function cannot be called with the new keyword.');
   });
 
-  it('uses provided Google Auth instance', () => {
-    const mockGoogleAuth = new GoogleAuth();
+  it('creates a provider with specified baseURL', () => {
     const customProvider = createAnthropicVertex({
-      googleAuth: mockGoogleAuth,
-      projectId: 'test-project',
-      region: 'us-central1',
+      project: 'test-project',
+      location: 'us-central1',
+      baseURL: 'https://{location}-aiplatform.googleapis.com/v1',
     });
     customProvider('claude-3-opus@20240229');
 
-    expect(GoogleAuth).toHaveBeenCalledTimes(2); // Once for the custom instance, once for the internal instance
     expect(AnthropicMessagesLanguageModel).toHaveBeenCalledWith(
       'claude-3-opus@20240229',
       {},
       expect.objectContaining({
-        googleAuth: mockGoogleAuth,
+        baseURL: 'https://us-central1-aiplatform.googleapis.com/v1',
+      }),
+    );
+  });
+
+  it('uses provided Google Auth instance', () => {
+    const customProvider = createAnthropicVertex({
+      project: 'test-project',
+      location: 'us-central1',
+    });
+    customProvider('claude-3-opus@20240229');
+
+    expect(AnthropicMessagesLanguageModel).toHaveBeenCalledWith(
+      'claude-3-opus@20240229',
+      {},
+      expect.objectContaining({
+        googleAuth: expect.objectContaining({
+          getClient: expect.any(Function),
+        }),
       }),
     );
   });
@@ -84,9 +91,9 @@ describe('AnthropicVertex Provider', () => {
       'claude-3-opus@20240229',
       {},
       expect.objectContaining({
-        provider: 'anthropic.messages',
-        projectId: 'test-project',
-        region: 'us-central1',
+        provider: 'anthropic.vertex',
+        project: 'test-project',
+        location: 'us-central1',
       }),
     );
     expect(languageModel).toBeDefined();
@@ -100,7 +107,7 @@ describe('AnthropicVertex Provider', () => {
     expect(() => {
       createAnthropicVertex();
     }).toThrow(
-      "Google Vertex project id setting is missing. Pass it using the 'projectId' parameter or the GOOGLE_VERTEX_PROJECT_ID environment variable.",
+      "Google Vertex project setting is missing. Pass it using the 'project' parameter or the GOOGLE_VERTEX_PROJECT environment variable.",
     );
 
     // Restore the original environment

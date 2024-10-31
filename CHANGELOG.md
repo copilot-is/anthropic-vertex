@@ -1,3 +1,7 @@
+v1.0.3:
+
+- change anthropic vertex provider settings
+
 v1.0.2:
 
 - example scripts

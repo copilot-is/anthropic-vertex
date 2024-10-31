@@ -1,9 +1,9 @@
-import { createAnthropicVertex } from 'anthropic-vertex-ai-provider';
+import { createAnthropicVertex } from 'anthropic-vertex';
 import { streamText } from 'ai';
 
 const vertexProvider = createAnthropicVertex({
-  region: 'europe-west1',
-  projectId: 'my-proj-1234',
+  project: 'my-proj-1234',
+  location: 'europe-west1',
 });
 
 const vertexSonnet = vertexProvider('claude-3-5-sonnet@20240620');

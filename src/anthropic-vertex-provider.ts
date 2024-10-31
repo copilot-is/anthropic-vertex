@@ -1,6 +1,6 @@
 import { LanguageModelV1, NoSuchModelError, ProviderV1 } from '@ai-sdk/provider';
-import { loadSetting, withoutTrailingSlash } from '@ai-sdk/provider-utils';
-import { GoogleAuth } from 'google-auth-library';
+import { FetchFunction, loadSetting, withoutTrailingSlash } from '@ai-sdk/provider-utils';
+import { GoogleAuth, GoogleAuthOptions } from 'google-auth-library';
 import { AnthropicMessagesLanguageModel } from './anthropic-messages-language-model';
 import { AnthropicMessagesModelId, AnthropicMessagesSettings } from './anthropic-messages-settings';
 
@@ -21,34 +21,28 @@ export interface AnthropicVertexProvider extends ProviderV1 {
 
 export interface AnthropicVertexProviderSettings {
   /**
-   * Your Google Vertex region. Defaults to the environment variable `GOOGLE_VERTEX_REGION`.
+   * Your Google Vertex location. Defaults to the environment variable `GOOGLE_VERTEX_LOCATION`.
    */
-  region?: string;
+  location?: string;
 
   /**
-Your Google Vertex project. Defaults to the environment variable `GOOGLE_VERTEX_PROJECT_ID`.
-  */
-  projectId?: string;
+   * Your Google Vertex project. Defaults to the environment variable `GOOGLE_VERTEX_PROJECT`.
+   */
+  project?: string;
 
   /**
    * Optional. The Authentication options provided by google-auth-library.
    * Complete list of authentication options is documented in the
    * GoogleAuthOptions interface:
-   * https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/googleauth.ts.
+   * https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/googleauth.ts
    */
-  googleAuth?: GoogleAuth;
+  googleAuthOptions?: GoogleAuthOptions;
 
   /**
    * Use a different URL prefix for API calls, e.g. to use proxy servers.
-   * The default prefix is `https://api.anthropic.com/v1`.
+   * The default prefix is `https://{location}-aiplatform.googleapis.com/v1`.
    */
   baseURL?: string;
-
-  /**
-   * API key that is being send using the `x-api-key` header.
-   * It defaults to the `ANTHROPIC_API_KEY` environment variable.
-   */
-  apiKey?: string;
 
   /**
    * Custom headers to include in the requests.
@@ -59,8 +53,9 @@ Your Google Vertex project. Defaults to the environment variable `GOOGLE_VERTEX_
    * Custom fetch implementation. You can use it as a middleware to intercept requests,
    * or to provide a custom fetch implementation for e.g. testing.
    */
-  fetch?: typeof fetch;
+  fetch?: FetchFunction;
 
+  // for testing
   generateId?: () => string;
 }
 
@@ -71,43 +66,43 @@ export function createAnthropicVertex(
   options: AnthropicVertexProviderSettings = {},
 ): AnthropicVertexProvider {
   const config = {
-    projectId: loadSetting({
-      settingValue: options.projectId,
-      settingName: 'projectId',
-      environmentVariableName: 'GOOGLE_VERTEX_PROJECT_ID',
-      description: 'Google Vertex project id',
+    project: loadSetting({
+      settingValue: options.project,
+      settingName: 'project',
+      environmentVariableName: 'GOOGLE_VERTEX_PROJECT',
+      description: 'Google Vertex project',
     }),
-    region: loadSetting({
-      settingValue: options.region,
-      settingName: 'region',
-      environmentVariableName: 'GOOGLE_VERTEX_REGION',
-      description: 'Google Vertex region',
+    location: loadSetting({
+      settingValue: options.location,
+      settingName: 'location',
+      environmentVariableName: 'GOOGLE_VERTEX_LOCATION',
+      description: 'Google Vertex location',
     }),
-    googleAuth: options.googleAuth,
+    googleAuthOptions: options.googleAuthOptions,
   };
 
   const baseURL =
-    withoutTrailingSlash(options.baseURL) ??
-    `https://${config.region}-aiplatform.googleapis.com/v1`;
-
-  const auth =
-    options.googleAuth ??
-    new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
+    withoutTrailingSlash(options.baseURL)?.replace('{location}', config.location) ??
+    `https://${config.location}-aiplatform.googleapis.com/v1`;
+  const googleAuth = new GoogleAuth({
+    scopes: 'https://www.googleapis.com/auth/cloud-platform',
+    ...options.googleAuthOptions,
+  });
 
   const createLanguageModel = (
     modelId: AnthropicMessagesModelId,
     settings: AnthropicMessagesSettings = {},
   ) =>
     new AnthropicMessagesLanguageModel(modelId, settings, {
-      provider: 'anthropic.messages',
+      provider: 'anthropic.vertex',
       baseURL,
       headers: () => ({
         ...options.headers,
       }),
       fetch: options.fetch,
-      projectId: config.projectId,
-      region: config.region,
-      googleAuth: auth,
+      project: config.project,
+      location: config.location,
+      googleAuth,
     });
 
   const provider = function (
@@ -125,7 +120,6 @@ export function createAnthropicVertex(
   provider.textEmbeddingModel = (modelId: string) => {
     throw new NoSuchModelError({ modelId, modelType: 'textEmbeddingModel' });
   };
-
 
   return provider as AnthropicVertexProvider;
 }

@@ -1,10 +1,10 @@
-import { createAnthropicVertex } from 'anthropic-vertex-ai-provider';
+import { createAnthropicVertex } from 'anthropic-vertex';
 import { generateText } from 'ai';
 import { z } from 'zod';
 
 const vertexProvider = createAnthropicVertex({
-  region: 'europe-west1',
-  projectId: 'my-proj-1234',
+  project: 'my-proj-1234',
+  location: 'europe-west1',
 });
 
 const vertexHaiku = vertexProvider('claude-3-haiku@20240307');

@@ -26,8 +26,8 @@ describe('AnthropicVertex Provider Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     provider = createAnthropicVertex({
-      projectId: 'test-project',
-      region: 'us-central1',
+      project: 'test-project',
+      location: 'us-central1',
     });
   });
 
@@ -35,20 +35,20 @@ describe('AnthropicVertex Provider Integration', () => {
     const model = provider('claude-3-haiku@20240307');
     expect(model).toBeInstanceOf(AnthropicMessagesLanguageModel);
     expect(model.modelId).toBe('claude-3-haiku@20240307');
-    expect((model as any).config.projectId).toBe('test-project');
-    expect((model as any).config.region).toBe('us-central1');
+    expect((model as any).config.project).toBe('test-project');
+    expect((model as any).config.location).toBe('us-central1');
   });
 
-  it('creates a provider with custom region and project ID', () => {
+  it('creates a provider with custom location and project ID', () => {
     const customProvider = createAnthropicVertex({
-      region: 'europe-west1',
-      projectId: 'custom-project',
+      project: 'custom-project',
+      location: 'europe-west1',
     });
     const model = customProvider('claude-3-5-sonnet@20240620');
     expect(model).toBeInstanceOf(AnthropicMessagesLanguageModel);
     expect(model.modelId).toBe('claude-3-5-sonnet@20240620');
-    expect((model as any).config.projectId).toBe('custom-project');
-    expect((model as any).config.region).toBe('europe-west1');
+    expect((model as any).config.project).toBe('custom-project');
+    expect((model as any).config.location).toBe('europe-west1');
   });
 
   it('supports text generation', async () => {
