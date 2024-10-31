@@ -1,4 +1,4 @@
-import { createAnthropicVertex } from 'anthropic-vertex-ai-provider';
+import { createAnthropicVertex } from 'anthropic-vertex';
 import { generateText } from 'ai';
 import { z } from 'zod';
 

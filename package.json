@@ -1,5 +1,5 @@
 {
-  "name": "anthropic-vertex-ai-provider",
+  "name": "anthropic-vertex",
   "version": "1.0.2",
   "license": "Apache-2.0",
   "sideEffects": false,
@@ -59,13 +59,13 @@
     "access": "public",
     "provenance": true
   },
-  "homepage": "https://github.com/fry69/anthropic-vertex-ai-provider#readme",
+  "homepage": "https://github.com/copilot-is/anthropic-vertex#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fry69/anthropic-vertex-ai-provider.git"
+    "url": "git+https://github.com/copilot-is/anthropic-vertex.git"
   },
   "bugs": {
-    "url": "https://github.com/fry69/anthropic-vertex-ai-provider/issues"
+    "url": "https://github.com/copilot-is/anthropic-vertex/issues"
   },
   "keywords": [
     "ai",

@@ -1,6 +1,6 @@
 # Vercel AI SDK - Anthropic Vertex Provider
 
-[fry69/anthropic-vertex-ai-provider](https://github.com/fry69/anthropic-vertex-ai-provider) is a community provider that uses Anthropic models through Vertex AI to provide language model support for the Vercel AI SDK.
+[copilot-is/anthropic-vertex](https://github.com/copilot-is/anthropic-vertex) is a community provider that uses Anthropic models through Vertex AI to provide language model support for the Vercel AI SDK.
 
 This provider is a community-maintained module and is not officially supported by Vercel. It was forked from the [Anthropic Vertex Provider](https://github.com/vercel/ai/pull/2482) pull request and updated.
 
@@ -14,30 +14,30 @@ Example scripts how to use this provider can be found in the [examples](./exampl
 
 ## Setup
 
-The AnthropicVertex provider is available in the `anthropic-vertex-ai-provider` module. You can install it with:
+The AnthropicVertex provider is available in the `anthropic-vertex` module. You can install it with:
 
 ```bash
-npm install anthropic-vertex-ai-provider
+npm install anthropic-vertex
 # or
-pnpm add anthropic-vertex-ai-provider
+pnpm add anthropic-vertex
 # or
-yarn add anthropic-vertex-ai-provider
+yarn add anthropic-vertex
 # or
-bun add anthropic-vertex-ai-provider
+bun add anthropic-vertex
 ```
 
 ## Provider Instance
 
-You can import the default provider instance `anthropicVertex` from `anthropic-vertex-ai-provider`:
+You can import the default provider instance `anthropicVertex` from `anthropic-vertex`:
 
 ```ts
-import { anthropicVertex } from 'anthropic-vertex-ai-provider';
+import { anthropicVertex } from 'anthropic-vertex';
 ```
 
-If you need a customized setup, you can import `createAnthropicVertex` from `anthropic-vertex-ai-provider` and create a provider instance with your settings:
+If you need a customized setup, you can import `createAnthropicVertex` from `anthropic-vertex` and create a provider instance with your settings:
 
 ```ts
-import { createAnthropicVertex } from 'anthropic-vertex-ai-provider';
+import { createAnthropicVertex } from 'anthropic-vertex';
 
 const anthropicVertex = createAnthropicVertex({
   region: 'us-central1',
@@ -88,7 +88,7 @@ const model = anthropicVertex('claude-3-sonnet@20240229');
 You can use AnthropicVertex language models to generate text with the `generateText` function:
 
 ```ts
-import { anthropicVertex } from 'anthropic-vertex-ai-provider';
+import { anthropicVertex } from 'anthropic-vertex';
 import { generateText } from 'ai';
 
 const { text } = await generateText({
